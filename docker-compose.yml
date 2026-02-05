@@ -1,0 +1,45 @@
+﻿services:
+  postgres:
+    image: postgres:16
+    container_name: ecg_postgres
+    environment:
+      POSTGRES_DB: ecg_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - "5432:5432"
+    volumes:
+      - ecg_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ecg_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: ECG.Api/Dockerfile
+    container_name: ecg_api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+
+      # override connection string inside container
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=ecg_db;Username=postgres;Password=123456
+
+      # JWT config (để khỏi phải sửa appsettings khi deploy)
+      Jwt__Key: REPLACE_WITH_A_LONG_RANDOM_SECRET_KEY_32+_CHARS
+      Jwt__Issuer: ECG.Api
+      Jwt__Audience: ECG.Clients
+      Jwt__ExpMinutes: "240"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ecg_uploads:/app/uploads
+
+volumes:
+  ecg_pgdata:
+  ecg_uploads:
