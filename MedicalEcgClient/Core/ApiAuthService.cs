@@ -43,32 +43,38 @@ namespace MedicalEcgClient.Core
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    // Đọc lỗi chi tiết từ server
                     var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
                     _logger.Warning($"[AUDIT] Login Failed ({response.StatusCode}). Detail: {error?.Detail ?? error?.Title}");
                     return null;
                 }
 
                 var authResult = await response.Content.ReadFromJsonAsync<LoginResponse>();
-                if (authResult == null || string.IsNullOrEmpty(authResult.Token)) return null;
+                if (authResult == null || string.IsNullOrEmpty(authResult.Token))
+                {
+                    _logger.Error("[CRITICAL] Login success but Token/User data is empty.");
+                    return null;
+                }
 
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.Token);
 
-                // Call /Me
-                var meResponse = await _httpClient.GetAsync("api/auth/me");
-                if (meResponse.IsSuccessStatusCode)
+                if (authResult.User != null)
                 {
-                    var userDto = await meResponse.Content.ReadFromJsonAsync<UserDto>();
                     CurrentUser = new User
                     {
-                        Username = userDto?.Username ?? username,
-                        FullName = userDto?.FullName ?? "Unknown Doctor",
-                        Role = userDto?.Role ?? "Doctor",
-                        Token = authResult.Token
+                        Id = authResult.User.Id.ToString(),
+                        Username = authResult.User.Username,
+                        FullName = authResult.User.FullName,
+                        Role = authResult.User.Role,
+                        Token = authResult.Token,
+                        StaffCode = authResult.User.StaffCode,
+                        Title = authResult.User.Title,
+                        Department = authResult.User.Department
                     };
-                    _logger.Information($"[AUDIT] Login SUCCESS. Welcome {CurrentUser.FullName}");
+
+                    _logger.Information($"[AUDIT] Login SUCCESS. Welcome {CurrentUser.FullName} ({CurrentUser.StaffCode})");
                     return CurrentUser;
                 }
+
                 return null;
             }
             catch (Exception ex)
@@ -80,7 +86,9 @@ namespace MedicalEcgClient.Core
 
         public void Logout()
         {
-            _logger.Information($"[AUDIT] User {CurrentUser?.Username} logging out.");
+            if (CurrentUser != null)
+                _logger.Information($"[AUDIT] User {CurrentUser.Username} logging out.");
+
             CurrentUser = null;
             _httpClient.DefaultRequestHeaders.Authorization = null;
         }

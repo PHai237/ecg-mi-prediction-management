@@ -13,10 +13,15 @@ namespace MedicalEcgClient.Core
 
     public class User
     {
+        public string Id { get; set; } = string.Empty;
         public string Username { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
         public string Role { get; set; } = "Doctor";
         public string Token { get; set; } = string.Empty;
+
+        public string StaffCode { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Department { get; set; } = string.Empty;
     }
 
     public class Patient

@@ -19,21 +19,33 @@ namespace MedicalEcgClient.Core.Dto
 
         [JsonPropertyName("expiresAt")]
         public DateTime ExpiresAt { get; set; }
+
+        [JsonPropertyName("user")]
+        public UserDto? User { get; set; }
     }
 
     public class UserDto
     {
         [JsonPropertyName("id")]
-        public string Id { get; set; } = string.Empty;
+        public int Id { get; set; }
 
         [JsonPropertyName("username")]
         public string Username { get; set; } = string.Empty;
 
+        [JsonPropertyName("role")]
+        public string Role { get; set; } = string.Empty;
+
+        [JsonPropertyName("staffCode")]
+        public string StaffCode { get; set; } = string.Empty;
+
         [JsonPropertyName("fullName")]
         public string FullName { get; set; } = string.Empty;
 
-        [JsonPropertyName("role")]
-        public string Role { get; set; } = string.Empty;
+        [JsonPropertyName("title")]
+        public string Title { get; set; } = string.Empty;
+
+        [JsonPropertyName("department")]
+        public string Department { get; set; } = string.Empty;
     }
 
     public class PatientDto
