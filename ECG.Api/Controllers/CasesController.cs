@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using ECG.Api.Contracts;
 
 namespace ECG.Api.Controllers
 {
@@ -592,10 +593,6 @@ namespace ECG.Api.Controllers
         {
             return $"{Request.Scheme}://{Request.Host}{urlPath}";
         }
-
-        // ===== DTOs =====
-
-        public record ApiError(string Message);
 
         public record CaseListItemDto(
             int Id,

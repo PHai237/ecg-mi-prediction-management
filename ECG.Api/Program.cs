@@ -81,6 +81,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
+    c.CustomSchemaIds(t => t.FullName);
+
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "ECG.Api", Version = "v1" });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

@@ -5,6 +5,7 @@ using ECG.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ECG.Api.Contracts;
 
 namespace ECG.Api.Controllers
 {
@@ -148,8 +149,6 @@ namespace ECG.Api.Controllers
             return null;
         }
     }
-
-    public record ApiError(string Message);
 
     public class PatientCreateDto
     {
