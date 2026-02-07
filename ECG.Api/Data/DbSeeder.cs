@@ -8,10 +8,8 @@ namespace ECG.Api.Data
     {
         public static async Task SeedAsync(AppDbContext db)
         {
-            // Apply any pending migrations
             await db.Database.MigrateAsync();
 
-            // Seed default users if empty
             if (!await db.Users.AnyAsync())
             {
                 db.Users.AddRange(
@@ -19,18 +17,48 @@ namespace ECG.Api.Data
                     {
                         Username = "admin",
                         PasswordHash = PasswordHasher.Hash("Admin@123"),
-                        Role = "Admin"
+                        Role = "Admin",
+                        StaffCode = "BS001",
+                        FullName = "Admin Doctor",
+                        Title = "Doctor",
+                        Department = "Cardiology"
                     },
                     new User
                     {
                         Username = "tech",
                         PasswordHash = PasswordHasher.Hash("Tech@123"),
-                        Role = "Technician"
+                        Role = "Technician",
+                        StaffCode = "KT001",
+                        FullName = "Tech Staff",
+                        Title = "Technician",
+                        Department = "ECG Lab"
                     }
                 );
 
                 await db.SaveChangesAsync();
+                return;
             }
+
+            // Backfill nhẹ nếu DB đã có user nhưng thiếu profile
+            var admin = await db.Users.FirstOrDefaultAsync(x => x.Username == "admin");
+            if (admin != null)
+            {
+                admin.StaffCode ??= "BS001";
+                admin.FullName ??= "Admin Doctor";
+                admin.Title ??= "Doctor";
+                admin.Department ??= "Cardiology";
+            }
+
+            var tech = await db.Users.FirstOrDefaultAsync(x => x.Username == "tech");
+            if (tech != null)
+            {
+                tech.StaffCode ??= "KT001";
+                tech.FullName ??= "Tech Staff";
+                tech.Title ??= "Technician";
+                tech.Department ??= "ECG Lab";
+            }
+
+            await db.SaveChangesAsync();
         }
     }
 }

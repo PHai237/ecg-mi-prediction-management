@@ -27,6 +27,9 @@ namespace ECG.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
+                return BadRequest(new { message = "Vui lòng nhập username và password." });
+
             var username = dto.Username.Trim();
 
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Username == username);
@@ -65,19 +68,45 @@ namespace ECG.Api.Controllers
             {
                 token = tokenString,
                 expiresAt = token.ValidTo,
-                user = new { user.Id, user.Username, user.Role }
+                user = new
+                {
+                    user.Id,
+                    user.Username,
+                    user.Role,
+                    user.StaffCode,
+                    user.FullName,
+                    user.Title,
+                    user.Department
+                }
             });
         }
 
         [Authorize]
         [HttpGet("me")]
-        public IActionResult Me()
+        public async Task<IActionResult> Me()
         {
-            var username = User.Identity?.Name;
-            var role = User.FindFirstValue(ClaimTypes.Role);
-            var uid = User.FindFirstValue("uid");
+            var uidStr = User.FindFirstValue("uid");
+            if (!int.TryParse(uidStr, out var uid))
+                return Unauthorized(new { message = "Token không hợp lệ." });
 
-            return Ok(new { uid, username, role });
+            // Query DB để lấy profile thật (không dựa vào claim)
+            var user = await _db.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == uid);
+
+            if (user == null)
+                return Unauthorized(new { message = "User không tồn tại hoặc đã bị vô hiệu." });
+
+            return Ok(new
+            {
+                user.Id,
+                user.Username,
+                user.Role,
+                user.StaffCode,
+                user.FullName,
+                user.Title,
+                user.Department
+            });
         }
     }
 
