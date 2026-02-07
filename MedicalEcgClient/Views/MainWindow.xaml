@@ -1,0 +1,70 @@
+﻿<Window x:Class="MedicalEcgClient.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:MedicalEcgClient.ViewModels"
+        Title="{Binding AppTitle}" Height="800" Width="1200"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.InputBindings>
+        <KeyBinding Key="F12" Modifiers="Ctrl" Command="{Binding OpenDebuggerCommand}" />
+    </Window.InputBindings>
+
+    <Grid Background="#F0F2F5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#DDD" BorderThickness="0,0,0,1" Padding="15"
+                Visibility="{Binding IsLoggedIn, Converter={StaticResource BoolToVis}}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Command="{Binding NavigateToDashboardCommand}" 
+                        Background="Transparent" BorderThickness="0" Cursor="Hand" Foreground="#0D6EFD">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE80F;" FontFamily="Segoe MDL2 Assets" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="DANH SÁCH BỆNH NHÂN" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" 
+                            Visibility="{Binding ActivePatient, Converter={StaticResource BoolToVis}, FallbackValue=Collapsed}">
+                    <TextBlock Text="Đang xử lý: " Foreground="Gray"/>
+                    <TextBlock Text="{Binding ActivePatient.FullName}" FontWeight="Bold" Foreground="#D32F2F"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Command="{Binding NavigateToSettingsCommand}" Margin="0,0,15,0" Background="Transparent" BorderThickness="0" ToolTip="Cài đặt hệ thống">
+                        <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="Gray"/>
+                    </Button>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,15,0">
+                        <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="Gray"/>
+                        <TextBlock Text="{Binding CurrentUser.FullName}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                    </StackPanel>
+
+                    <Button Command="{Binding LogoutCommand}" Padding="10,5" Background="#FFE0E0" Foreground="Red" BorderThickness="0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Đăng xuất"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <ContentControl Grid.Row="1" Content="{Binding CurrentView}" Margin="10"/>
+        
+        <Grid Grid.RowSpan="2" Background="#CCFFFFFF" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="&#xE768;" FontFamily="Segoe MDL2 Assets" FontSize="40" Foreground="#0D6EFD" HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding BusyMessage}" FontSize="16" FontWeight="SemiBold" Foreground="#0D6EFD" Margin="0,10,0,0"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
