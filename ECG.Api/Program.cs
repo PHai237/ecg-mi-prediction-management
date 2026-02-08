@@ -2,6 +2,7 @@
 using ECG.Api.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
@@ -16,6 +17,36 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Controllers
 builder.Services.AddControllers();
+
+// Forwarded headers (để ToAbsoluteUrl đúng khi sau proxy)
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto |
+        ForwardedHeaders.XForwardedHost;
+
+    // demo/dev: accept forwarded headers from anywhere
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+// CORS (cho FE chạy localhost:3000 hoặc Vite 5173 gọi API)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DevCors", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:3000",
+                "https://localhost:3000",
+                "http://localhost:5173",
+                "https://localhost:5173"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 // Multipart upload limit (ví dụ 60MB)
 builder.Services.Configure<FormOptions>(o =>
@@ -50,6 +81,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
+    c.CustomSchemaIds(t => t.FullName);
+
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "ECG.Api", Version = "v1" });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -76,6 +109,9 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+// Forwarded headers must be early
+app.UseForwardedHeaders();
+
 // Ensure uploads folder exists + serve static files at /uploads
 var uploadsRoot = Path.Combine(app.Environment.ContentRootPath, "uploads");
 Directory.CreateDirectory(uploadsRoot);
@@ -100,7 +136,21 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Tránh HTTPS redirect trong container (chạy http://:8080)
+var runningInContainer = string.Equals(
+    Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"),
+    "true",
+    StringComparison.OrdinalIgnoreCase
+);
+
+if (app.Environment.IsDevelopment() && !runningInContainer)
+{
+    app.UseHttpsRedirection();
+}
+
+app.UseRouting();
+
+app.UseCors("DevCors");
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -3,6 +3,7 @@ using System;
 using ECG.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ECG.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260206144432_AddCaseCreatedByUser")]
+    partial class AddCaseCreatedByUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,19 +60,6 @@ namespace ECG.Api.Migrations
                     b.Property<int>("PatientId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("PredictedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("PredictedByUserId")
-                        .HasColumnType("integer");
-
-                    b.Property<double?>("PredictedConfidence")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("PredictedLabel")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -84,10 +74,6 @@ namespace ECG.Api.Migrations
                     b.HasIndex("MeasuredAt");
 
                     b.HasIndex("PatientId");
-
-                    b.HasIndex("PredictedAt");
-
-                    b.HasIndex("PredictedByUserId");
 
                     b.HasIndex("Status");
 
@@ -139,54 +125,6 @@ namespace ECG.Api.Migrations
                     b.HasIndex("CaseId");
 
                     b.ToTable("ecg_case_images", (string)null);
-                });
-
-            modelBuilder.Entity("ECG.Api.Models.EcgCasePrediction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Algorithm")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<int>("CaseId")
-                        .HasColumnType("integer");
-
-                    b.Property<double>("Confidence")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("Label")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<DateTime>("PredictedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("PredictedByUserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CaseId");
-
-                    b.HasIndex("PredictedAt");
-
-                    b.HasIndex("PredictedByUserId");
-
-                    b.ToTable("ecg_case_predictions", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_ecg_case_predictions_label", "\"Label\" IN ('MI','non-MI','uncertain')");
-                        });
                 });
 
             modelBuilder.Entity("ECG.Api.Models.Patient", b =>
@@ -317,16 +255,9 @@ namespace ECG.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ECG.Api.Models.User", "PredictedByUser")
-                        .WithMany()
-                        .HasForeignKey("PredictedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.Navigation("CreatedByUser");
 
                     b.Navigation("Patient");
-
-                    b.Navigation("PredictedByUser");
                 });
 
             modelBuilder.Entity("ECG.Api.Models.EcgCaseImage", b =>
@@ -340,30 +271,9 @@ namespace ECG.Api.Migrations
                     b.Navigation("Case");
                 });
 
-            modelBuilder.Entity("ECG.Api.Models.EcgCasePrediction", b =>
-                {
-                    b.HasOne("ECG.Api.Models.EcgCase", "Case")
-                        .WithMany("Predictions")
-                        .HasForeignKey("CaseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ECG.Api.Models.User", "PredictedByUser")
-                        .WithMany()
-                        .HasForeignKey("PredictedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Case");
-
-                    b.Navigation("PredictedByUser");
-                });
-
             modelBuilder.Entity("ECG.Api.Models.EcgCase", b =>
                 {
                     b.Navigation("Images");
-
-                    b.Navigation("Predictions");
                 });
 #pragma warning restore 612, 618
         }

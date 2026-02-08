@@ -17,7 +17,7 @@ services:
       retries: 20
 
   api:
-    image: stonemelon/ecg-api:0.1
+    image: stonemelon/ecg-api:latest   # <-- FIX: latest (không phải lastest)
     container_name: ecg_api
     depends_on:
       postgres:
