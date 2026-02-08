@@ -123,19 +123,19 @@ namespace MedicalEcgClient.Core.Dto
         public int PatientId { get; set; }
 
         [JsonPropertyName("patientCode")]
-        public string PatientCode { get; set; } = string.Empty;
+        public string? PatientCode { get; set; }
 
         [JsonPropertyName("patientName")]
-        public string PatientName { get; set; } = string.Empty;
+        public string? PatientName { get; set; }
 
         [JsonPropertyName("measuredAt")]
         public DateTime MeasuredAt { get; set; }
 
         [JsonPropertyName("status")]
-        public string Status { get; set; } = string.Empty;
+        public string? Status { get; set; }
 
         [JsonPropertyName("note")]
-        public string Note { get; set; } = string.Empty;
+        public string? Note { get; set; }
 
         [JsonPropertyName("imageCount")]
         public int ImageCount { get; set; }
@@ -143,8 +143,51 @@ namespace MedicalEcgClient.Core.Dto
         [JsonPropertyName("createdAt")]
         public DateTime CreatedAt { get; set; }
 
+        [JsonPropertyName("createdByUserId")]
+        public int? CreatedByUserId { get; set; }
+
+        [JsonPropertyName("createdByUsername")]
+        public string? CreatedByUsername { get; set; }
+
+        [JsonPropertyName("createdByFullName")]
+        public string? CreatedByFullName { get; set; }
+
+        [JsonPropertyName("createdByTitle")]
+        public string? CreatedByTitle { get; set; }
+
+        [JsonPropertyName("createdByDepartment")]
+        public string? CreatedByDepartment { get; set; }
+
+        [JsonPropertyName("predictedLabel")]
+        public string? PredictedLabel { get; set; }
+
+        [JsonPropertyName("predictedConfidence")]
+        public double? PredictedConfidence { get; set; }
+
+        [JsonPropertyName("predictedAt")]
+        public DateTime? PredictedAt { get; set; }
+
+        [JsonPropertyName("predictedByUserId")]
+        public int? PredictedByUserId { get; set; }
+
+        [JsonPropertyName("predictedByUsername")]
+        public string? PredictedByUsername { get; set; }
+
+        [JsonPropertyName("predictedByFullName")]
+        public string? PredictedByFullName { get; set; }
+
+        [JsonPropertyName("predictedByTitle")]
+        public string? PredictedByTitle { get; set; }
+
+        [JsonPropertyName("predictedByDepartment")]
+        public string? PredictedByDepartment { get; set; }
+
+        // --- Nested Objects ---
         [JsonPropertyName("images")]
         public List<CaseImageDto>? Images { get; set; }
+
+        [JsonPropertyName("predictions")]
+        public List<PredictionDto>? Predictions { get; set; }
     }
 
     public class CreateCaseRequest
@@ -178,6 +221,22 @@ namespace MedicalEcgClient.Core.Dto
 
         [JsonPropertyName("uploadedAt")]
         public DateTime UploadedAt { get; set; }
+    }
+
+    public class PredictionDto
+    {
+        [JsonPropertyName("id")] public int Id { get; set; }
+        [JsonPropertyName("label")] public string? Label { get; set; }
+        [JsonPropertyName("confidence")] public double? Confidence { get; set; }
+        [JsonPropertyName("algorithm")] public string? Algorithm { get; set; }
+        [JsonPropertyName("predictedAt")] public DateTime? PredictedAt { get; set; }
+        [JsonPropertyName("predictedByUserId")] public int? PredictedByUserId { get; set; }
+        [JsonPropertyName("predictedByUsername")] public string? PredictedByUsername { get; set; }
+        [JsonPropertyName("predictedByFullName")] public string? PredictedByFullName { get; set; }
+        [JsonPropertyName("predictedByTitle")] public string? PredictedByTitle { get; set; }
+        [JsonPropertyName("predictedByDepartment")] public string? PredictedByDepartment { get; set; }
+
+        [JsonPropertyName("note")] public string? Note { get; set; }
     }
 
     public class ApiErrorResponse

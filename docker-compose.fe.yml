@@ -18,7 +18,7 @@ services:
       retries: 20
 
   api:
-    image: stonemelon/ecg-api:latest
+    image: thanglele/ecgapi:latest
     container_name: ecg_api
     restart: always
     depends_on:

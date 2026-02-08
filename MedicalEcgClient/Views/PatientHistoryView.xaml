@@ -107,19 +107,46 @@
                                 </Border>
 
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding Note, TargetNullValue='(Không có ghi chú)', FallbackValue='Ca Khám'}" FontWeight="Bold" FontSize="14" TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Margin="0,2,0,0">
-                                        <Run Text="Trạng thái:" Foreground="Gray"/>
-                                        <Run Text="{Binding Status}" FontWeight="SemiBold" Foreground="#2E7D32"/>
-                                        <Run Text=" | " Foreground="LightGray"/>
-                                        <Run Text="Số ảnh:" Foreground="Gray"/>
-                                        <Run Text="{Binding ImageCount}" FontWeight="SemiBold"/>
+                                    <TextBlock FontWeight="Bold" FontSize="14" TextTrimming="CharacterEllipsis">
+                                        <Run Text="Ngày khám: "/>
+                                        <Run Text="{Binding MeasuredAt, StringFormat='dd/MM/yyyy HH:mm'}"/>
                                     </TextBlock>
+
+                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                        <Border Background="#FFF3E0" CornerRadius="3" Padding="5,1" Margin="0,0,10,0"
+                                                Visibility="{Binding PredictedLabel, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock FontSize="11" Foreground="#E65100">
+                                                <Run Text="AI: " FontWeight="Bold"/>
+                                                <Run Text="{Binding PredictedLabel}"/>
+                                                <Run Text=" ("/>
+                                                <Run Text="{Binding PredictedConfidence, StringFormat={}{0:P0}}"/>
+                                                <Run Text=")"/>
+                                            </TextBlock>
+                                        </Border>
+
+                                        <TextBlock>
+                                            <Run Text="Trạng thái:" Foreground="Gray"/>
+                                            <Run Text="{Binding Status}" FontWeight="SemiBold" Foreground="#2E7D32"/>
+                                            <Run Text=" | Ảnh:" Foreground="LightGray"/>
+                                            <Run Text="{Binding ImageCount}" FontWeight="SemiBold"/>
+                                        </TextBlock>
+                                    </StackPanel>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                    <TextBlock Text="{Binding MeasuredAt, StringFormat='dd/MM/yyyy'}" FontWeight="Bold" HorizontalAlignment="Right"/>
-                                    <TextBlock Text="{Binding MeasuredAt, StringFormat='HH:mm'}" Foreground="Gray" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding Note}" 
+                                               Foreground="Gray" HorizontalAlignment="Right" FontStyle="Italic" 
+                                               MaxWidth="200" TextTrimming="CharacterEllipsis" ToolTip="{Binding Note}"/>
+
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,2,0,0">
+                                        <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" Foreground="Gray" VerticalAlignment="Center" Margin="0,0,5,0" FontSize="10"/>
+                                        <TextBlock Foreground="Gray" FontSize="11" FontStyle="Italic">
+                                            <Run Text="{Binding CreatedByFullName}"/>
+                                            <Run Text=" ("/>
+                                            <Run Text="{Binding CreatedByTitle}"/>
+                                            <Run Text=")"/>
+                                        </TextBlock>
+                                    </StackPanel>
                                 </StackPanel>
                             </Grid>
                         </DataTemplate>
@@ -129,10 +156,9 @@
                 <Grid Grid.Row="1" Background="#88FFFFFF" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                         <TextBlock Text="&#xE768;" FontFamily="Segoe MDL2 Assets" FontSize="30" Foreground="#0D6EFD" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Đang xử lý..." Foreground="#0D6EFD" FontWeight="Bold" Margin="0,5,0,0"/>
+                        <TextBlock Text="Đang tải lịch sử..." Foreground="#0D6EFD" FontWeight="Bold" Margin="0,5,0,0"/>
                     </StackPanel>
                 </Grid>
-
                 <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center"
                             Visibility="{Binding Cases.Count, Converter={StaticResource BoolToVis}, ConverterParameter=Inverse}">
                     <TextBlock Text="&#xE7C5;" FontFamily="Segoe MDL2 Assets" FontSize="40" Foreground="#DDD" HorizontalAlignment="Center"/>
@@ -156,14 +182,62 @@
                                 <Run Text="{Binding CurrentCaseDetail.MeasuredAt, StringFormat='dd/MM/yyyy HH:mm'}"/>
                             </TextBlock>
 
-                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                <TextBlock Text="Mã HS:" Foreground="Gray"/>
-                                <TextBlock Text="{Binding CurrentCaseDetail.PatientCode}" FontWeight="Bold" Margin="5,0,15,0"/>
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
 
-                                <TextBlock Text="Trạng thái:" Foreground="Gray"/>
-                                <TextBlock Text="{Binding CurrentCaseDetail.Status}" FontWeight="Bold" Foreground="Green" Margin="5,0,0,0"/>
-                            </StackPanel>
-                            <TextBlock Text="{Binding CurrentCaseDetail.Note}" FontStyle="Italic" Margin="0,5,0,0" TextWrapping="Wrap"/>
+                                <StackPanel Grid.Column="0" Margin="0,0,40,0">
+                                    <TextBlock Text="THÔNG TIN BỆNH NHÂN" FontWeight="Bold" FontSize="10" Foreground="Gray" Margin="0,0,0,2"/>
+                                    <TextBlock>
+                                        <Run Text="Mã HS:" Foreground="Gray"/>
+                                        <Run Text="{Binding CurrentCaseDetail.PatientCode}" FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                    <TextBlock>
+                                        <Run Text="Tên:" Foreground="Gray"/>
+                                        <Run Text="{Binding CurrentCaseDetail.PatientName}" FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Margin="0,0,40,0">
+                                    <TextBlock Text="NGƯỜI THỰC HIỆN" FontWeight="Bold" FontSize="10" Foreground="Gray" Margin="0,0,0,2"/>
+                                    <TextBlock>
+                                        <Run Text="BS:" Foreground="Gray"/>
+                                        <Run Text="{Binding CurrentCaseDetail.CreatedByFullName}" FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                    <TextBlock>
+                                        <Run Text="Khoa:" Foreground="Gray"/>
+                                        <Run Text="{Binding CurrentCaseDetail.CreatedByDepartment}" FontWeight="SemiBold"/>
+                                        <Run Text=" ("/>
+                                        <Run Text="{Binding CurrentCaseDetail.CreatedByTitle}"/>
+                                        <Run Text=")"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="TRẠNG THÁI CA" FontWeight="Bold" FontSize="10" Foreground="Gray" Margin="0,0,0,2"/>
+                                    <TextBlock>
+                                        <Run Text="Status:" Foreground="Gray"/>
+                                        <Run Text="{Binding CurrentCaseDetail.Status}" FontWeight="Bold" Foreground="Green"/>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding CurrentCaseDetail.Note}" FontStyle="Italic" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Border Background="#FFF8E1" BorderBrush="#FFE0B2" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,15,0,0"
+                                    Visibility="{Binding CurrentCaseDetail.PredictedLabel, Converter={StaticResource BoolToVis}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" Foreground="#E65100" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="16"/>
+                                    <TextBlock VerticalAlignment="Center">
+                                        <Run Text="AI DỰ ĐOÁN:" FontWeight="Bold" Foreground="#E65100"/>
+                                        <Run Text="{Binding CurrentCaseDetail.PredictedLabel}" FontWeight="SemiBold"/>
+                                        <Run Text=" - Độ tin cậy: "/>
+                                        <Run Text="{Binding CurrentCaseDetail.PredictedConfidence, StringFormat=P1}" FontWeight="Bold"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
 
                         <Button Command="{Binding CloseDetailCommand}" HorizontalAlignment="Right" VerticalAlignment="Top" 
