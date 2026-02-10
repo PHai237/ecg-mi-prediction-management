@@ -1,18 +1,20 @@
-import 'package:appsuckhoe/feature/cases/domain/entities/case.dart';
-import 'package:appsuckhoe/feature/cases/domain/entities/ecg_image.dart';
-import 'package:appsuckhoe/feature/cases/domain/entities/prediction.dart';
-import 'package:appsuckhoe/feature/patient/domain/entities/patient.dart';
-import 'package:appsuckhoe/feature/cases/domain/entities/case_info.dart';
+import 'dart:io';
 
+import 'package:appsuckhoe/feature/cases/domain/entities/case.dart';
+import 'package:appsuckhoe/feature/cases/domain/entities/case_image.dart';
+import 'package:go_router/go_router.dart';
+import 'package:appsuckhoe/feature/cases/domain/entities/prediction.dart';
 abstract class CaseRepository {
-  Future<List<CaseInfo>> getCasesInfo();
-  Future<CaseInfo> getCaseInfoById(int id);
-  Future<List<Case>> getCases();
-  Future<Case> getCaseById(int id);
-  Future<List<EcgImage>> getEcgImages();
-  Future<EcgImage> getEcgImageById(int id);
-  Future<List<Patient>> getPatients();
-  Future<Patient> getPatientById(int id);
-  Future<List<Prediction>> getPredictions();
-  Future<Prediction> getPredictionById(int id);
+  Future<List<Case>> getAllCases();
+  Future<void> createCase(Case c);
+  Future<void> deleteCase(String id);
+  Future<Case> getCaseById(String id);
+  Future<void> updateCase(Case c);
+  Future<Prediction> predictCase(String id);
+  // upload trả về entity CaseImage
+  Future<List<CaseImage>> uploadCaseImages({
+    required int caseId,
+    required List<File> files,
+  });
+  Future<List<CaseImage>> getCaseImages(int caseId);
 }

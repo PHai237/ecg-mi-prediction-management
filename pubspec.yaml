@@ -30,6 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  mime: ^1.0.4
+  http_parser: ^4.0.2
+  image_picker: ^1.0.7
   http: ^1.2.0
   shared_preferences: ^2.2.2
   go_router: ^13.0.0

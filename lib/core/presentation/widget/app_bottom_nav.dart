@@ -51,7 +51,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
         context.go(AppRoutes.patient);
         break;
       case 2:
-        context.go(AppRoutes.caseList);
+        context.go(AppRoutes.cases);
         break;
     }
   }

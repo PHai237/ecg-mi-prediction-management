@@ -180,4 +180,29 @@ class RemoteDatasource<T> {
       throw Exception('DELETE failed: ${response.body}');
     }
   }
+  Future<Map<String, dynamic>> postRaw(
+    String endpoint, {
+      Map<String, String>? headers,
+      Map<String, dynamic>? body,
+    }) async {
+    final url = Uri.parse('$baseUrl$endpoint');
+    _logRequest('POST RAW', url, body: body);
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        ...?headers,
+      },
+      body: body != null ? jsonEncode(body) : null,
+    );
+
+    _logResponse(response);
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('POST RAW failed: ${response.body}');
+    }
+
+    return jsonDecode(response.body) as Map<String, dynamic>;
+  }
 }

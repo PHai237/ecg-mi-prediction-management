@@ -1,10 +1,8 @@
 import 'package:appsuckhoe/feature/cases/domain/repositories/case_repository.dart';
 import 'package:appsuckhoe/feature/cases/domain/entities/case.dart';
-
-class GetCase {
+class UpdateCase {
   final CaseRepository repository;
 
-  GetCase(this.repository);
-
-  Future<Case> call(String id) => repository.getCaseById(id);
+  UpdateCase(this.repository);
+  Future<void> call(Case c) => repository.updateCase(c);
 }

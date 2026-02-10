@@ -57,11 +57,15 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       context.go('/me');
-    } catch (e) {
-      setState(() {
-        _error = 'Sai username hoặc mật khẩu';
-      });
-    } finally {
+    } catch (e, s) {
+        debugPrint('❌ LOGIN ERROR: $e');
+        debugPrint('📍 STACKTRACE: $s');
+
+        setState(() {
+          _error = e.toString();
+        });
+      }
+      finally {
       if (mounted) {
         setState(() {
           _loading = false;
@@ -80,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Doctor Login')),
+      appBar: AppBar(title: const Text('Admin Login')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -123,7 +127,12 @@ class _LoginPageState extends State<LoginPage> {
               width: double.infinity,
               height: 48,
               child: ElevatedButton(
-                onPressed: _loading ? null : _handleLogin,
+                onPressed: _loading
+                    ? null
+                    : () {
+                        debugPrint('🔥 BUTTON PRESSED');
+                        _handleLogin();
+                      },
                 child: _loading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text('Login'),

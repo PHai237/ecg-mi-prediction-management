@@ -1,41 +1,28 @@
-import 'package:appsuckhoe/feature/cases/domain/entities/prediction.dart';
+import '../../domain/entities/prediction.dart';
 
 class PredictionModel extends Prediction {
   PredictionModel({
-    super.id,
     required super.caseId,
-    required super.patientId,
     required super.label,
     required super.confidence,
-    super.createdat,
-    super.updatedat,
+    required super.predictedAt,
+    required super.algorithm,
+    required super.note,
   });
 
-  // ================= FROM JSON =================
   factory PredictionModel.fromJson(Map<String, dynamic> json) {
     return PredictionModel(
-      id: json['id'] ?? 0,
-      caseId: json['case_id'] ?? 0,
-      patientId: json['patient_id'] ?? 0,
-      label: json['label'] ?? '',
-      confidence: json['confidence'] ?? '',
-      createdat: json['created_at'] != null
-          ? DateTime.parse(json['created_at'])
-          : null,
-      updatedat: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'])
-          : null,
+      caseId: json['caseId'],
+      label: json['label'],
+      confidence: (json['confidence'] as num).toDouble(),
+      predictedAt: DateTime.parse(json['predictedAt']),
+      algorithm: json['algorithm'],
+      note: json['note'],
     );
   }
-
-  // ================= FROM ENTITY =================
-  factory PredictionModel.fromEntity(Prediction p) => PredictionModel(
-        id: p.id,
-        caseId: p.caseId,
-        patientId: p.patientId,
-        label: p.label,
-        confidence: p.confidence,
-        createdat: p.createdat,
-        updatedat: p.updatedat,
-      );
+  Map<String, dynamic> toJson() {
+    return {
+      'id': caseId,
+    };
+  }
 }

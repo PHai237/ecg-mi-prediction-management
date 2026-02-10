@@ -10,7 +10,7 @@ class ApiConfig {
 
     // Mobile (Android / iOS)
     if (Platform.isAndroid || Platform.isIOS) {
-      return 'http://192.168.1.16:5089';
+      return 'http://10.202.17.147:5089';
     }
 
     // fallback

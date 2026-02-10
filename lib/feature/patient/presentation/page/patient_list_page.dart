@@ -51,12 +51,13 @@ class _PatientListPageState extends State<PatientListPage> {
         TextEditingController(text: patient?.code ?? '');
     final nameController =
         TextEditingController(text: patient?.name ?? '');
-    final dateOfBirthController =
-        TextEditingController(text: patient?.dateOfBirth.toString() ?? '');
-    final genderController =
-        TextEditingController(text: patient?.gender ?? '');
+    final dobController =
+        TextEditingController(text: patient?.dateOfBirth ?? '');
     final noteController =
         TextEditingController(text: patient?.note ?? '');
+
+    bool gender = patient?.gender ?? true; // true = Nam
+    bool isExamined = patient?.isExamined ?? false;
 
     final isEdit = patient != null;
 
@@ -67,21 +68,38 @@ class _PatientListPageState extends State<PatientListPage> {
           children: [
             TextField(
               controller: codeController,
-              decoration: const InputDecoration(labelText: 'Mã BN'),
-              enabled: !isEdit, // ❗ không cho sửa code
+              decoration: const InputDecoration(labelText: 'Mã bệnh nhân'),
+              enabled: !isEdit,
             ),
             TextField(
               controller: nameController,
               decoration: const InputDecoration(labelText: 'Tên bệnh nhân'),
             ),
             TextField(
-              controller: dateOfBirthController,
-              decoration: const InputDecoration(labelText: 'Năm sinh'),
+              controller: dobController,
+              decoration:
+                  const InputDecoration(labelText: 'Ngày sinh (yyyy-MM-dd)'),
             ),
-            TextField(
-              controller: genderController,
-              decoration: const InputDecoration(labelText: 'Giới tính'),
+
+            /// 👇 GENDER
+            SwitchListTile(
+              title: const Text('Giới tính'),
+              subtitle: Text(gender ? 'Nam' : 'Nữ'),
+              value: gender,
+              onChanged: (v) {
+                setState(() => gender = v);
+              },
             ),
+
+            /// 👇 IS EXAMINED
+            SwitchListTile(
+              title: const Text('Đã khám'),
+              value: isExamined,
+              onChanged: (v) {
+                setState(() => isExamined = v);
+              },
+            ),
+
             TextField(
               controller: noteController,
               decoration: const InputDecoration(labelText: 'Ghi chú'),
@@ -98,36 +116,27 @@ class _PatientListPageState extends State<PatientListPage> {
           onPressed: () async {
             if (codeController.text.isEmpty ||
                 nameController.text.isEmpty ||
-                dateOfBirthController .text.isEmpty) {
+                dobController.text.isEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Vui lòng nhập đủ thông tin')),
               );
               return;
             }
 
+            final newPatient = Patient(
+              id: patient?.id,
+              code: codeController.text.trim(),
+              name: nameController.text.trim(),
+              dateOfBirth: dobController.text.trim(),
+              gender: gender,
+              note: noteController.text.trim(),
+              isExamined: isExamined,
+            );
+
             if (isEdit) {
-              // 🔁 UPDATE
-              await _updatePatient(
-                Patient(
-                  id: patient.id,
-                  code: patient.code,
-                  name: nameController.text.trim(),
-                  dateOfBirth: dateOfBirthController.text.trim(),
-                  gender: genderController.text.trim(),
-                  note: noteController.text.trim(),
-                ),
-              );
+              await _updatePatient(newPatient);
             } else {
-              // ➕ CREATE
-              await _createPatient(
-                Patient(
-                  code: codeController.text.trim(),
-                  name: nameController.text.trim(),
-                  dateOfBirth: dateOfBirthController.text.trim(),
-                  gender: genderController.text.trim(),
-                  note: noteController.text.trim(),
-                ),
-              );
+              await _createPatient(newPatient);
             }
 
             await _loadPatients();
@@ -166,7 +175,7 @@ class _PatientListPageState extends State<PatientListPage> {
                           horizontal: 12, vertical: 6),
                       child: ListTile(
                         leading: CircleAvatar(
-                          child: Text(p.code),
+                          child: Text(p.id.toString()),
                         ),
                         title: Text(
                           p.name,
@@ -175,10 +184,11 @@ class _PatientListPageState extends State<PatientListPage> {
                         ),
                         subtitle: Text(
                           'Mã BN: ${p.code}\n'
-                          'Năm sinh: ${p.dateOfBirth}\n'
-                          'Giới tính: ${p.gender}\n'
+                          'Ngày sinh: ${p.dateOfBirth}\n'
+                          'Giới tính: ${p.gender ? 'Nam' : 'Nữ'}\n'
+                          'Đã khám: ${p.isExamined ? 'Rồi' : 'Chưa'}\n'
                           'Ghi chú: ${p.note}\n'
-                          'Tạo lúc: ${p.createdat}',
+                          'Tạo lúc: ${p.createdAt != null ? p.createdAt!.toLocal() : '-'}',
                         ),
                         isThreeLine: true,
                         trailing: Row(

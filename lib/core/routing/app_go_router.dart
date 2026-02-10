@@ -1,3 +1,4 @@
+import 'package:appsuckhoe/feature/cases/presentation/page/case_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,6 +47,10 @@ class AppGoRouter {
           GoRoute(
             path: AppRoutes.me,
             builder: (context, state) => const HomePage(),
+          ),
+          GoRoute(
+            path: AppRoutes.cases,
+            builder: (context, state) => const CaseListPage(),
           ),
           GoRoute(
             path: AppRoutes.patient,

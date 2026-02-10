@@ -1,10 +1,10 @@
 import 'package:appsuckhoe/feature/cases/domain/entities/case.dart';
 import 'package:appsuckhoe/feature/cases/domain/repositories/case_repository.dart';
 
-class GetAllCases {
+class CreateCase {
   final CaseRepository repository;
 
-  GetAllCases(this.repository);
+  CreateCase(this.repository);
 
-  Future<List<Case>> call() => repository.getAllCases();
+  Future<void> call(Case c) => repository.createCase(c);
 }

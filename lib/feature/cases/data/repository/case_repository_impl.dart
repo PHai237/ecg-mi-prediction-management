@@ -1,140 +1,67 @@
-// import 'package:appsuckhoe/feature/cases/domain/entities/case.dart';
-// import 'package:appsuckhoe/feature/cases/domain/entities/ecg_image.dart';
-// import 'package:appsuckhoe/feature/cases/domain/entities/prediction.dart';
-// import 'package:appsuckhoe/feature/patient/domain/entities/patient.dart';
+import 'dart:io';
 
-// import 'package:appsuckhoe/feature/cases/data/datasource/case_remote_datasource.dart';
-// import 'package:appsuckhoe/feature/cases/data/datasource/ecg_image_remote_datasource.dart';
-// import 'package:appsuckhoe/feature/cases/data/datasource/prediction_remote_datasource.dart';
-// import 'package:appsuckhoe/feature/patient/data/datasource/patient_remote_datasource.dart';
-// import 'package:appsuckhoe/feature/cases/domain/entities/case_info.dart';
+import 'package:appsuckhoe/feature/cases/data/datasource/case_remote_datasource.dart';
+import 'package:appsuckhoe/feature/cases/data/model/case_model.dart';
+import 'package:appsuckhoe/feature/cases/domain/entities/case.dart';
+import 'package:appsuckhoe/feature/cases/domain/entities/case_image.dart';
+import 'package:appsuckhoe/feature/cases/domain/entities/prediction.dart';
+import 'package:appsuckhoe/feature/cases/domain/repositories/case_repository.dart';
+import 'package:appsuckhoe/feature/cases/data/model/prediction_model.dart';
 
-// import 'package:appsuckhoe/feature/cases/domain/repositories/case_repository.dart';
+class CaseRepositoryImpl implements CaseRepository {
+  final CaseRemoteDatasource remoteDatasource;
 
-// class CaseRepositoryImpl implements CaseRepository {
-//   final CaseRemoteDatasource caseRemoteDatasource;
-//   final EcgImageRemoteDatasource ecgImageRemoteDatasource;
-//   final PredictionRemoteDatasource predictionRemoteDatasource;
-//   final PatientRemoteDatasource patientRemoteDatasource;
+  CaseRepositoryImpl(this.remoteDatasource);
 
-//   CaseRepositoryImpl({
-//     required this.caseRemoteDatasource,
-//     required this.ecgImageRemoteDatasource,
-//     required this.predictionRemoteDatasource,
-//     required this.patientRemoteDatasource,
-//   });
-//   // ================= CASE INFO =================
-//   @override
-//   Future<List<CaseInfo>> getCasesInfo() async {
-//     final cases = await caseRemoteDatasource.getAllCases();
+  @override
+  Future<void> createCase(Case c) async {
+    final model = CaseModel.fromEntity(c);
+    await remoteDatasource.createCase(model);
+  }
 
-//     final List<CaseInfo> results = [];
+  @override
+  Future<void> deleteCase(String id) async {
+    await remoteDatasource.deleteCase(id);
+  }
 
-//     for (final c in cases) {
-//       final patient =
-//           await patientRemoteDatasource.getPatientById(c.patientId.toString());
+  @override
+  Future<List<Case>> getAllCases() async {
+    final models = await remoteDatasource.getAllCases();
+    return models.map((e) => e).toList();
+  }
 
-//       final prediction =
-//           await predictionRemoteDatasource.getPredictionByCaseId(c.id!);
+  @override
+  Future<Case> getCaseById(String id) async {
+    final model = await remoteDatasource.getCaseById(id);
+    return model;
+  }
 
-//       final images =
-//           await ecgImageRemoteDatasource.getImagesByCaseId(c.id!);
+  @override
+  Future<void> updateCase(Case c) async {
+    final model = CaseModel.fromEntity(c);
+    await remoteDatasource.updateCase(model);
+  }
 
-//       results.add(
-//         CaseInfo(
-//           id: c.id,
-//           caseId: c.id.toString(),
-//           patientId: c.patientId,
-//           status: c.status,
-//           fileName: images.isNotEmpty ? images.first.fileName : '',
-//           label: prediction.label,
-//           confidence: prediction.confidence,
-//           mesuredAt: c.measuredAt,
-//           gender: patient.gender,
-//           createdAt: c.createdAt,
-//           updatedAt: c.updatedAt,
-//         ),
-//       );
-//     }
-//     return results;
-//   }
-//   @override
-//   Future<CaseInfo> getCaseInfoById(int id) async {
-//     final c = await caseRemoteDatasource.getCaseById(id);
+  @override
+  Future<PredictionModel> predictCase(String id) async {
+    return await remoteDatasource.predictCase(id);
+  }
 
-//     final patient =
-//         await patientRemoteDatasource.getPatientById(c.patientId.toString());
+  // ✅ CHUẨN: chỉ delegate + trả Entity
+  @override
+  Future<List<CaseImage>> uploadCaseImages({
+    required int caseId,
+    required List<File> files,
+  }) async {
+    return await remoteDatasource.uploadCaseImages(
+      caseId: caseId,
+      files: files,
+    );
+  }
+  @override
+  Future<List<CaseImage>> getCaseImages(int caseId) async {
+    final models = await remoteDatasource.getCaseImages(caseId);
+    return models.map((m) => m).toList(); // model extends entity
+  }
 
-//     final prediction =
-//         await predictionRemoteDatasource.getPredictionByCaseId(c.id!);
-
-//     final images =
-//         await ecgImageRemoteDatasource.getImagesByCaseId(c.id!);
-
-//     return CaseInfo(
-//       id: c.id,
-//       caseId: c.id.toString(),
-//       patientId: c.patientId,
-//       status: c.status,
-//       fileName: images.isNotEmpty ? images.first.fileName : '',
-//       label: prediction.label,
-//       confidence: prediction.confidence,
-//       mesuredAt: c.measuredAt,
-//       gender: patient.gender,
-//       createdAt: c.createdAt,
-//       updatedAt: c.updatedAt,
-//     );
-//   }
-
-//   // ================= CASE =================
-//   @override
-//   Future<List<Case>> getCases() async {
-//     final models = await caseRemoteDatasource.getAllCases();
-//     return models;
-//   }
-
-//   @override
-//   Future<Case> getCaseById(int id) async {
-//     final model = await caseRemoteDatasource.getCaseById(id);
-//     return model;
-//   }
-
-//   // ================= ECG IMAGE =================
-//   @override
-//   Future<List<EcgImage>> getEcgImages() async {
-//     final models = await ecgImageRemoteDatasource.getAllEcgImages();
-//     return models;
-//   }
-
-//   @override
-//   Future<EcgImage> getEcgImageById(int id) async {
-//     final model = await ecgImageRemoteDatasource.getEcgImageById(id);
-//     return model;
-//   }
-
-//   // ================= PATIENT =================
-//   @override
-//   Future<List<Patient>> getPatients() async {
-//     final models = await patientRemoteDatasource.getAllPatients();
-//     return models;
-//   }
-
-//   @override
-//   Future<Patient> getPatientById(int id) async {
-//     final model = await patientRemoteDatasource.getPatientById(id.toString());
-//     return model;
-//   }
-
-//   // ================= PREDICTION =================
-//   @override
-//   Future<List<Prediction>> getPredictions() async {
-//     final models = await predictionRemoteDatasource.getAllPredictions();
-//     return models;
-//   }
-
-//   @override
-//   Future<Prediction> getPredictionById(int id) async {
-//     final model = await predictionRemoteDatasource.getPredictionById(id);
-//     return model;
-//   }
-// }
+}
