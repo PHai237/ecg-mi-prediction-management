@@ -34,7 +34,7 @@ services:
     ports:
       - "8087:8080"
     volumes:
-      - ecg_uploads:/app/uploads
+      - ecg_uploads:/app/wwwroot/uploads
 
 volumes:
   ecg_pgdata:
